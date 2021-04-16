@@ -56,9 +56,10 @@ struct dda_coord
 //  To cast a ray we start with the initial x and y coordinates and the step in x and y
 // respectively. As long as the distance along the ray in the x-direction is shorter
 // than that travelled in the y direction, then we increment x by the x-step. Otherwise
-// we increment y by the y-step. When we hit a wall, we're finished (Note: we're assuming
-// a closed map here to ensure that the ray actually hits something and the while loop
-// terminates.
+// we increment y by the y-step. When we hit a wall, we're finished.
+//
+// Note: we're assuming a closed map here to ensure that the ray actually hits something
+// and the while loop terminates.
 constexpr auto cast_ray(dda_coord x, dda_coord y, const dda_coord& x_step, const dda_coord& y_step)
 {
     auto is_x_step = false;
@@ -76,8 +77,8 @@ constexpr auto cast_ray(dda_coord x, dda_coord y, const dda_coord& x_step, const
     return std::pair(is_x_step, static_cast<float>(is_x_step ? x.on_grid : y.on_grid));
 }
 
-// Compute the start and step for a given direction. Arguments are a coordinate (x or y) of the camera
-// position and the corresponding component of the ray direction.
+// Compute the start and step for a given x or y direction. Arguments are a coordinate (either
+// x or y) of the camera position and the corresponding component of the ray direction.
 constexpr auto initialize_dda_direction(const float pos, const float dir)
 {
     const auto grid_pos = static_cast<int>(pos);
@@ -164,7 +165,7 @@ void draw_column(const os::terminal& term, const int x, const int screen_height,
     const auto wall_bottom = wall_top + num_whole_chars + 2;
 
     // Where the sequence of wall and floor chars start (add one if we're smoothing the edges
-    // to make space for the fractional blocks
+    // to make space for the fractional blocks)
     const auto wall_start = wall_top + (is_blocky ? 0 : 1);
     const auto floor_start = wall_bottom + (is_blocky ? 0 : 1);
 
@@ -213,7 +214,7 @@ public:
     // ending at the very right of the screen at one. If you pass in a screen
     // coordinate between zero and one, this function returns a vector that starts
     // at the player position and ends at the corresponding point on the imagined
-    // screen. Note that only at 0.5 (i.e. the center of the screen will this
+    // screen. Note that only at 0.5 - i.e. the center of the screen - will this
     // be a unit vector.
     [[nodiscard]] constexpr vec2f line_of_sight(const float normalized_screen_x) const
     {
@@ -244,8 +245,6 @@ private:
     constexpr static float turn_speed = 0.1f;
 };
 
-void render(os::terminal& term, const player& plyr, bool is_blocky, bool is_draw_map);
-
 // Draw the 3D scene
 void draw_scene(const os::terminal& term, const int screen_width, const int screen_height, const player& plyr,
                 const bool is_blocky)
@@ -274,6 +273,7 @@ void draw_map(const os::terminal& term, const player& plyr)
     term.print_char(x, maze_height - y - 1, dir_chars[dir_index]);
 }
 
+// render the scene (and possibly the map) to the terminal
 void render(os::terminal& term, const player& plyr, bool is_blocky, bool is_draw_map)
 {
     const auto [screen_width, screen_height] = term.screen_size();
@@ -294,14 +294,10 @@ int main()
     // Events are a key and a function to execute when that key is pressed
     using event = std::pair<int, std::function<void()>>;
     const auto events = std::array{
-        event{'a', [&] { plyr.turn(1.0f); }},
-        event{'d', [&] { plyr.turn(-1.0f); }},
-        event{'w', [&] { plyr.walk(1.0f); }},
-        event{'s', [&] { plyr.walk(-1.0f); }},
-        event{'m', [&] { plyr.strafe(1.0f); }},
-        event{'n', [&] { plyr.strafe(-1.0f); }},
-        event{'h', [&] { is_blocky = !is_blocky; }},
-        event{'p', [&] { is_map_visible = !is_map_visible; }},
+        event{'a', [&] { plyr.turn(1.0f); }},         event{'d', [&] { plyr.turn(-1.0f); }},
+        event{'w', [&] { plyr.walk(1.0f); }},         event{'s', [&] { plyr.walk(-1.0f); }},
+        event{'m', [&] { plyr.strafe(1.0f); }},       event{'n', [&] { plyr.strafe(-1.0f); }},
+        event{'h', [&] { is_blocky = !is_blocky; }},  event{'p', [&] { is_map_visible = !is_map_visible; }},
         event{os::escape_key, [&] { std::exit(0); }},
     };
 
