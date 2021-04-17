@@ -1,7 +1,7 @@
 ## Raycasting in the Terminal
 
-Just a bit of fun. After watching OneLoneCoder's [First Person Shooter Video](https://youtu.be/xW8skO7MFYw), 
-inspiration struck and I had an idea to potentially get rid of the "blocky" appearance that would seem to
+Just a bit of fun. Inspired by OneLoneCoder's [First Person Shooter Video](https://youtu.be/xW8skO7MFYw), 
+I wanted to try to get rid of the "blocky" appearance that would seem to
 be inevitable in a console based raycaster. So this is a C++20 raycaster using ncurses which is
 functionally more or less the same as in OneLoneCoder's video, but with the edges smoothed a bit.
 
@@ -31,4 +31,6 @@ and additional fractional block characters are added to the top and bottom of th
 In this case it would be two quarter blocks to make up the missing 0.5 units.
 
 It's quite simple to implement and has the nice property that all the necessary information is
-already available and no additional rays need to be cast. 
+already available and no additional rays need to be cast.
+
+This is tested on OSX. It should run on any system that has ncurses.
